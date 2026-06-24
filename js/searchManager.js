@@ -130,6 +130,7 @@
             return bookData.books.map((book) => ({
                 title: book.title,
                 author: book.author || "",
+                genres: Array.isArray(book.genres) ? book.genres : [],
             }));
         }
 
@@ -137,6 +138,7 @@
             return bookData.book_titles.map((title) => ({
                 title,
                 author: "",
+                genres: [],
             }));
         }
 
@@ -149,6 +151,7 @@
             .map((book) => ({
                 title: book.title,
                 author: book.author,
+                genres: book.genres,
                 normalizedTitle: normalize(book.title),
                 initials: getInitials(book.title),
             }));
@@ -161,79 +164,6 @@
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
-    }
-
-    function renderInlineMarkdown(value) {
-        return escapeHtml(value)
-            .replace(/`([^`]+)`/g, "<code>$1</code>")
-            .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    }
-
-    function closeList(html, listType) {
-        if (!listType) {
-            return null;
-        }
-
-        html.push(`</${listType}>`);
-        return null;
-    }
-
-    function renderMarkdown(markdown) {
-        const html = [];
-        let listType = null;
-
-        String(markdown || "")
-            .replace(/\r\n/g, "\n")
-            .split("\n")
-            .forEach((line) => {
-                const trimmed = line.trim();
-
-                if (!trimmed) {
-                    listType = closeList(html, listType);
-                    return;
-                }
-
-                const heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
-
-                if (heading) {
-                    listType = closeList(html, listType);
-                    const level = heading[1].length;
-                    html.push(`<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`);
-                    return;
-                }
-
-                const orderedListItem = trimmed.match(/^\d+\.\s+(.+)$/);
-
-                if (orderedListItem) {
-                    if (listType !== "ol") {
-                        listType = closeList(html, listType);
-                        listType = "ol";
-                        html.push("<ol>");
-                    }
-
-                    html.push(`<li>${renderInlineMarkdown(orderedListItem[1])}</li>`);
-                    return;
-                }
-
-                const unorderedListItem = trimmed.match(/^[-*]\s+(.+)$/);
-
-                if (unorderedListItem) {
-                    if (listType !== "ul") {
-                        listType = closeList(html, listType);
-                        listType = "ul";
-                        html.push("<ul>");
-                    }
-
-                    html.push(`<li>${renderInlineMarkdown(unorderedListItem[1])}</li>`);
-                    return;
-                }
-
-                listType = closeList(html, listType);
-                html.push(`<p>${renderInlineMarkdown(trimmed)}</p>`);
-            });
-
-        closeList(html, listType);
-        return html.join("");
     }
 
     function viewElement() {
@@ -262,8 +192,22 @@
         `);
     }
 
-    function bookMarkdownUrl(title) {
-        return `${BOOKS_PATH}/${encodeURIComponent(title)}.md`;
+    function bookHtmlUrl(title) {
+        return `${BOOKS_PATH}/${encodeURIComponent(title)}.html`;
+    }
+
+    function renderGenreTags(book) {
+        const genres = Array.isArray(book.genres) ? book.genres.filter(Boolean) : [];
+
+        if (!genres.length) {
+            return "";
+        }
+
+        return `
+            <div class="book-genres" aria-label="장르">
+                ${genres.map((genre) => `<span class="book-genre">#${escapeHtml(genre)}</span>`).join("")}
+            </div>
+        `;
     }
 
     function resolveBook(query) {
@@ -276,7 +220,8 @@
         return searchIndex.find((book) => book.normalizedTitle === normalizedQuery) || searchBooks(query)[0] || null;
     }
 
-    async function loadBookMarkdown(title) {
+    async function loadBookHtml(bookOrTitle) {
+        const book = typeof bookOrTitle === "string" ? resolveBook(bookOrTitle) || { title: bookOrTitle, genres: [] } : bookOrTitle;
         const view = viewElement();
 
         if (view) {
@@ -286,14 +231,14 @@
         showViewSpinner();
 
         try {
-            const response = await fetch(bookMarkdownUrl(title));
+            const response = await fetch(bookHtmlUrl(book.title));
 
             if (!response.ok) {
-                throw new Error(`Markdown load failed: ${response.status}`);
+                throw new Error(`HTML load failed: ${response.status}`);
             }
 
-            const markdown = await response.text();
-            setViewContent(renderMarkdown(markdown));
+            const html = await response.text();
+            setViewContent(`${renderGenreTags(book)}${html}`);
         } catch (error) {
             showViewMessage("책 내용을 불러오지 못했습니다.");
             console.error("책 내용을 불러오지 못했습니다.", error);
@@ -437,7 +382,7 @@
         input.value = book.title;
         closeResults(results);
         focusAfterSearch(input, shouldBlur);
-        await loadBookMarkdown(book.title);
+        await loadBookHtml(book);
     }
 
     function selectResult(input, results, title, shouldBlur) {
@@ -590,8 +535,8 @@
 
     window.searchManager = {
         getInitials,
-        openBook(title) {
-            return loadBookMarkdown(title);
+        openBook(bookOrTitle) {
+            return loadBookHtml(bookOrTitle);
         },
         search: searchBooks,
     };
