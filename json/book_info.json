@@ -1,6 +1,10 @@
 {
   "book_data": {
     "total_books": 2,
+    "book_titles": [
+      "흑뢰성",
+      "침묵"
+    ],
     "books": [
       {
         "title": "흑뢰성",

@@ -1,14 +1,48 @@
+<!DOCTYPE html>
 <html lang="ko">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>책 글귀 모음</title>
         <link rel="stylesheet" href="style.css">
+        <style>
+            
+        </style>
     </head>
     <body>
         <div class="container">
-            
+            <section class="search" aria-label="Search area">
+                <a class="brand" href="#">책책책</a>
+
+                <form class="search-form" role="search">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                        <path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="search" placeholder="책 검색" aria-label="Search documentation">
+                </form>
+
+                <div class="actions" aria-label="Display options">
+                    <button class="icon-button" type="button" aria-label="Toggle theme">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                            <path d="M20.5 14.2A8.1 8.1 0 0 1 9.8 3.5 8.7 8.7 0 1 0 20.5 14.2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </section>
+
+            <section class="view markdown">
+            </section>
+
+            <footer class="site-footer">
+                <p>&copy; 2024 MinimalDocs. Built for readability.</p>
+                <div class="footer-links">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Github</a>
+                </div>
+            </footer>
         </div>
+        <script src="js/thmeSetting.js"></script>
         <script src="script.js"></script>
     </body>
 </html>
