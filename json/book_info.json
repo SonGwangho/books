@@ -1,0 +1,39 @@
+{
+  "book_data": {
+    "total_books": 2,
+    "books": [
+      {
+        "title": "흑뢰성",
+        "author": "요네자와 호노부",
+        "publisher": "황금가지",
+        "publication_year": 2005,
+        "read_at": "2026-06-15",
+        "genres": [
+          "역사",
+          "미스테리",
+          "추리"
+        ],
+        "translator": "김선영"
+      },
+      {
+        "title": "침묵",
+        "author": "엔도 슈샤쿠",
+        "publish_date": "2003-01-27",
+        "publisher": "홍성사",
+        "publication_year": 2005,
+        "read_at": "2026-06-15",
+        "genres": [
+          "역사",
+          "종교"
+        ],
+        "translator": "공문혜"
+      }
+    ]
+  },
+  "genres": [
+    "역사",
+    "미스테리",
+    "추리",
+    "종교"
+  ]
+}
